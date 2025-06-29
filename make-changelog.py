@@ -1,7 +1,7 @@
 import xml.etree.ElementTree as et
 import argparse
 import sys
-import os
+import utils
 
 
 SOURCE_PATH = "../giada/extras/com.giadamusic.Giada.metainfo.xml"
@@ -10,7 +10,7 @@ CHANGELOG_WEB_PATH = "../giada-www/src/data/changes.html"
 
 
 def get_changes_from_xml(file_path, version):
-    check_file_existence(file_path)
+    utils.check_file_existence(file_path)
     root = et.parse(file_path).getroot()
     changes = root.findall(f".//release[@version='{version}']/description/ul/li")
     if changes == []:
@@ -19,14 +19,8 @@ def get_changes_from_xml(file_path, version):
     return [li.text.strip() for li in changes]
 
 
-def check_file_existence(file_path):
-    if not os.path.exists(file_path):
-        print(f"File {file_path} doesn't exist!")
-        sys.exit(1)
-
-
 def update_app_changelog(file_path, version, date, changes):
-    check_file_existence(file_path)
+    utils.check_file_existence(file_path)
     with open(file_path, "r") as f:
         content = f.read()
         if f"{version} ---" in content:
@@ -43,7 +37,7 @@ def update_app_changelog(file_path, version, date, changes):
 
 
 def update_web_changelog(file_path, changes):
-    check_file_existence(file_path)
+    utils.check_file_existence(file_path)
     with open(file_path, "w") as f:
         content = "<ul>\n"
         for change in changes:
