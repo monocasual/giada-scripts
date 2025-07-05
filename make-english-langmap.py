@@ -1,6 +1,7 @@
 import utils
 import re
 import sys
+import json
 
 
 SOURCE_LANGMAPPER_H_PATH = "../giada/src/gui/langMapper.h"
@@ -39,18 +40,22 @@ def get_langmapper_values(file_path, keys):
     return out
 
 
-def make_langmap(file_path, values):
+def get_source_langmap_as_json(h_file_path, cpp_file_path):
+    """Turns the h/cpp file combo into a dict object. This is the source of truth
+    of the langmap messages."""
+    keys = get_langmapper_keys(h_file_path)
+    values = get_langmapper_values(cpp_file_path, keys)
+    langmap_dict = dict(values)
+    return langmap_dict
+
+
+def make_langmap(file_path, langmap_dict):
     with open(file_path, "w") as f:
-        content = "{\n"
-        for i, value in enumerate(values):
-            is_last = i == len(values) - 1
-            comma = "" if is_last else ","
-            content += f'\t"{value[0]}": "{value[1]}"{comma}\n'
-        content += "}"
-        f.write(content)
+        json.dump(langmap_dict, f, indent=4)
 
 
 if __name__ == "__main__":
-    keys = get_langmapper_keys(SOURCE_LANGMAPPER_H_PATH)
-    values = get_langmapper_values(SOURCE_LANGMAPPER_CPP_PATH, keys)
-    make_langmap(DEST_ENGLISH_LANGMAP_PATH, values)
+    langmap_dict = get_source_langmap_as_json(
+        SOURCE_LANGMAPPER_H_PATH, SOURCE_LANGMAPPER_CPP_PATH
+    )
+    make_langmap(DEST_ENGLISH_LANGMAP_PATH, langmap_dict)
