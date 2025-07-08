@@ -42,7 +42,7 @@ def get_langmapper_values(file_path, keys):
     return out
 
 
-def get_source_langmap_as_json(h_file_path, cpp_file_path):
+def get_source_langmap(h_file_path, cpp_file_path):
     """Turns the h/cpp file combo into a dict object. This is the source of truth
     of the langmap messages."""
     keys = get_langmapper_keys(h_file_path)
@@ -81,7 +81,7 @@ def make_langmap(file_path, langmap_dict):
 
 if __name__ == "__main__":
     """ Read the source langmap content from h/cpp files. """
-    source_langmap = get_source_langmap_as_json(
+    source_langmap = get_source_langmap(
         SOURCE_LANGMAPPER_H_PATH, SOURCE_LANGMAPPER_CPP_PATH
     )
 
