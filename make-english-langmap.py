@@ -2,10 +2,12 @@ import utils
 import re
 import sys
 import json
+import pathlib
 
 
 SOURCE_LANGMAPPER_H_PATH = "../giada/src/gui/langMapper.h"
 SOURCE_LANGMAPPER_CPP_PATH = "../giada/src/gui/langMapper.cpp"
+DEST_LANGMAPS_PATH = "../giada-langmaps/langmaps"
 DEST_ENGLISH_LANGMAP_PATH = "../giada-langmaps/langmaps/english.langmap"
 
 
@@ -49,13 +51,42 @@ def get_source_langmap_as_json(h_file_path, cpp_file_path):
     return langmap_dict
 
 
+def get_existing_langmap(file_path):
+    """Reads an already existing JSON langmap file."""
+    with open(file_path, "r") as f:
+        return json.load(f)
+
+
+def sync_langmap(file_path, source_langmap):
+    """Updates all values in langmap at 'file_path' with content from 'source_langmap'.
+    If 'file_path' points to the english langmap, the whole file is generated from
+    scratch because that's the official reference. Otherwise, missing keys will
+    be added in langmap file at 'file_path'."""
+    if "english.langmap" in file_path:
+        make_langmap(file_path, source_langmap)
+        return
+    target_langmap = get_existing_langmap(file_path)
+    target_langmap_updated = target_langmap
+    for key, value in source_langmap.items():
+        if key not in target_langmap:
+            print(f"'{key}' missing from '{pathlib.Path(file_path).name}', updating...")
+            target_langmap_updated[key] = value
+    make_langmap(file_path, target_langmap_updated)
+
+
 def make_langmap(file_path, langmap_dict):
     with open(file_path, "w") as f:
         json.dump(langmap_dict, f, indent=4)
 
 
 if __name__ == "__main__":
-    langmap_dict = get_source_langmap_as_json(
+    """ Read the source langmap content from h/cpp files. """
+    source_langmap = get_source_langmap_as_json(
         SOURCE_LANGMAPPER_H_PATH, SOURCE_LANGMAPPER_CPP_PATH
     )
-    make_langmap(DEST_ENGLISH_LANGMAP_PATH, langmap_dict)
+
+    """ Sync all existing langmap files according to the source above. """
+    for file in pathlib.Path(DEST_LANGMAPS_PATH).iterdir():
+        if file.is_file() and file.suffix == ".langmap":
+            print(f"Syncing {file.name}...")
+            sync_langmap(file.as_posix(), source_langmap)
