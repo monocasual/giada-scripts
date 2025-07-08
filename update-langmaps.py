@@ -76,7 +76,7 @@ def sync_langmap(file_path, source_langmap):
 
 def make_langmap(file_path, langmap_dict):
     with open(file_path, "w") as f:
-        json.dump(langmap_dict, f, indent=4)
+        json.dump(langmap_dict, f, indent=4, sort_keys=True)
 
 
 if __name__ == "__main__":
