@@ -8,7 +8,7 @@ import pathlib
 SOURCE_LANGMAPPER_H_PATH = "../giada/src/gui/langMapper.h"
 SOURCE_LANGMAPPER_CPP_PATH = "../giada/src/gui/langMapper.cpp"
 DEST_LANGMAPS_PATH = "../giada-langmaps/langmaps"
-DEST_ENGLISH_LANGMAP_PATH = "../giada-langmaps/langmaps/english.langmap"
+DEST_ENGLISH_LANGMAP_PATH = f"{DEST_LANGMAPS_PATH}/english.langmap"
 
 
 def get_langmapper_keys(file_path):
