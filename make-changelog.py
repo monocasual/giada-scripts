@@ -9,6 +9,14 @@ CHANGELOG_APP_PATH = "../giada/ChangeLog"
 CHANGELOG_WEB_PATH = "../giada-www/src/data/changes.html"
 
 
+class Changes:
+    def __init__(self, version, date, changes_list, description):
+        self.version = version
+        self.date = date
+        self.changes_list = changes_list
+        self.description = description
+
+
 def get_changes_from_xml(file_path, version):
     utils.check_file_existence(file_path)
     root = et.parse(file_path).getroot()
@@ -16,6 +24,7 @@ def get_changes_from_xml(file_path, version):
     if version_el is None:
         print(f"Could not find release {version} in {file_path}!")
         sys.exit(1)
+    date = version_el.get("date")
     description = version_el.find("description")
     if description is None:
         print(f"Could not find description for release {version} in {file_path}!")
@@ -24,7 +33,8 @@ def get_changes_from_xml(file_path, version):
     if changes == []:
         print(f"Could not find list of changes for release {version} in {file_path}!")
         sys.exit(1)
-    return [li.text.strip() for li in changes]
+    changes_list = [li.text.strip() for li in changes]
+    return Changes(version, date, changes_list, description)
 
 
 def update_app_changelog(file_path, version, date, changes):
@@ -69,5 +79,5 @@ if __name__ == "__main__":
 
     changes = get_changes_from_xml(SOURCE_PATH, version)
 
-    update_app_changelog(CHANGELOG_APP_PATH, version, date, changes)
-    update_web_changelog(CHANGELOG_WEB_PATH, changes)
+    update_app_changelog(CHANGELOG_APP_PATH, version, date, changes.changes_list)
+    update_web_changelog(CHANGELOG_WEB_PATH, changes.changes_list)
