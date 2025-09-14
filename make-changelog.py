@@ -2,6 +2,7 @@ import xml.etree.ElementTree as et
 import argparse
 import sys
 import utils
+import datetime
 
 
 SOURCE_PATH = "../giada/extras/com.giadamusic.Giada.metainfo.xml"
@@ -24,7 +25,7 @@ def get_changes_from_xml(file_path, version):
     if version_el is None:
         print(f"Could not find release {version} in {file_path}!")
         sys.exit(1)
-    date = version_el.get("date")
+    date = datetime.datetime.strptime(version_el.get("date"), "%Y-%m-%d").date()
     description = version_el.find("description")
     if description is None:
         print(f"Could not find description for release {version} in {file_path}!")
@@ -37,17 +38,17 @@ def get_changes_from_xml(file_path, version):
     return Changes(version, date, changes_list, description)
 
 
-def update_app_changelog(file_path, version, date, changes):
+def update_app_changelog(file_path, changes):
     utils.check_file_existence(file_path)
     with open(file_path, "r") as f:
         content = f.read()
-        if f"{version} ---" in content:
+        if f"{changes.version} ---" in content:
             print(
-                f"App changelog already compiled for version {version}, nothing to do"
+                f"App changelog already compiled for version {changes.version}, nothing to do"
             )
             return
-        changes_txt = f"{version} --- {date}\n"
-        for change in changes:
+        changes_txt = f"{changes.version} --- {changes.date.strftime("%Y . %m . %d")}\n"
+        for change in changes.changes_list:
             changes_txt += f"- {change}\n"
         changes_txt += "\n\n"
     with open(file_path, "w") as f:
@@ -58,7 +59,7 @@ def update_web_changelog(file_path, changes):
     utils.check_file_existence(file_path)
     with open(file_path, "w") as f:
         content = "<ul>\n"
-        for change in changes:
+        for change in changes.changes_list:
             content += f"\t<li>{change}</li>\n"
         content += "</ul>"
         f.write(content)
@@ -79,5 +80,5 @@ if __name__ == "__main__":
 
     changes = get_changes_from_xml(SOURCE_PATH, version)
 
-    update_app_changelog(CHANGELOG_APP_PATH, version, date, changes.changes_list)
-    update_web_changelog(CHANGELOG_WEB_PATH, changes.changes_list)
+    update_app_changelog(CHANGELOG_APP_PATH, changes)
+    update_web_changelog(CHANGELOG_WEB_PATH, changes)
