@@ -12,9 +12,13 @@ CHANGELOG_WEB_PATH = "../giada-www/src/data/changes.html"
 def get_changes_from_xml(file_path, version):
     utils.check_file_existence(file_path)
     root = et.parse(file_path).getroot()
-    changes = root.findall(f".//release[@version='{version}']/description/ul/li")
-    if changes == []:
+    version_el = root.find(f'.//release[@version="{version}"]')
+    if version_el is None:
         print(f"Could not find release {version} in {file_path}!")
+        sys.exit(1)
+    changes = version_el.findall(f"description/ul/li")
+    if changes == []:
+        print(f"Could not find list of changes for release {version} in {file_path}!")
         sys.exit(1)
     return [li.text.strip() for li in changes]
 
