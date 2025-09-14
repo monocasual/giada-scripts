@@ -70,13 +70,8 @@ if __name__ == "__main__":
 
     parser.add_argument("--version", help="Version number, e.g. 1.0.0", required=True)
 
-    parser.add_argument(
-        "--date", help="Release date, e.g. January 5, 1990", required=True
-    )
-
     args = vars(parser.parse_args())
     version = args["version"]
-    date = args["date"]
 
     changes = get_changes_from_xml(SOURCE_PATH, version)
 
