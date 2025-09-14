@@ -49,7 +49,9 @@ def update_app_changelog(file_path, changes):
             return
         changes_txt = f"{changes.version} --- {changes.date.strftime("%Y . %m . %d")}\n"
         for change in changes.changes_list:
-            changes_txt += f"- {change}\n"
+            changes_txt += (
+                f"- {change.rstrip(";.")}\n"  # Remove . and ; characters at the end
+            )
         changes_txt += "\n\n"
     with open(file_path, "w") as f:
         f.write(changes_txt + content)
