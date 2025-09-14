@@ -18,6 +18,10 @@ class Changes:
         self.description = description
 
 
+def get_xml_element_content(el):
+    return "".join(et.tostring(e, encoding="unicode") for e in el)
+
+
 def get_changes_from_xml(file_path, version):
     utils.check_file_existence(file_path)
     root = et.parse(file_path).getroot()
@@ -35,7 +39,7 @@ def get_changes_from_xml(file_path, version):
         print(f"Could not find list of changes for release {version} in {file_path}!")
         sys.exit(1)
     changes_list = [li.text.strip() for li in changes]
-    return Changes(version, date, changes_list, description)
+    return Changes(version, date, changes_list, get_xml_element_content(description))
 
 
 def update_app_changelog(file_path, changes):
@@ -60,11 +64,7 @@ def update_app_changelog(file_path, changes):
 def update_web_changelog(file_path, changes):
     utils.check_file_existence(file_path)
     with open(file_path, "w") as f:
-        content = "<ul>\n"
-        for change in changes.changes_list:
-            content += f"\t<li>{change}</li>\n"
-        content += "</ul>"
-        f.write(content)
+        f.write(changes.description)
 
 
 if __name__ == "__main__":
