@@ -16,7 +16,11 @@ def get_changes_from_xml(file_path, version):
     if version_el is None:
         print(f"Could not find release {version} in {file_path}!")
         sys.exit(1)
-    changes = version_el.findall(f"description/ul/li")
+    description = version_el.find("description")
+    if description is None:
+        print(f"Could not find description for release {version} in {file_path}!")
+        sys.exit(1)
+    changes = description.findall(f"ul/li")
     if changes == []:
         print(f"Could not find list of changes for release {version} in {file_path}!")
         sys.exit(1)
