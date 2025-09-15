@@ -11,8 +11,9 @@ CHANGELOG_WEB_PATH = "../giada-www/src/data/changes.html"
 
 
 class Changes:
-    def __init__(self, version, date, changes_list, description):
+    def __init__(self, version, codename, date, changes_list, description):
         self.version = version
+        self.codename = codename
         self.date = date
         self.changes_list = changes_list
         self.description = description
@@ -22,7 +23,7 @@ def get_xml_element_content(el):
     return "".join(et.tostring(e, encoding="unicode") for e in el)
 
 
-def get_changes_from_xml(file_path, version):
+def get_changes_from_xml(file_path, version, codename):
     utils.check_file_existence(file_path)
     root = et.parse(file_path).getroot()
     version_el = root.find(f'.//release[@version="{version}"]')
@@ -39,7 +40,9 @@ def get_changes_from_xml(file_path, version):
         print(f"Could not find list of changes for release {version} in {file_path}!")
         sys.exit(1)
     changes_list = [li.text.strip() for li in changes]
-    return Changes(version, date, changes_list, get_xml_element_content(description))
+    return Changes(
+        version, codename, date, changes_list, get_xml_element_content(description)
+    )
 
 
 def update_app_changelog(file_path, changes):
@@ -71,11 +74,13 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Changelog generator")
 
     parser.add_argument("--version", help="Version number, e.g. 1.0.0", required=True)
+    parser.add_argument("--codename", help="Codename, e.g. Jackalope", required=True)
 
     args = vars(parser.parse_args())
     version = args["version"]
+    codename = args["codename"]
 
-    changes = get_changes_from_xml(SOURCE_PATH, version)
+    changes = get_changes_from_xml(SOURCE_PATH, version, codename)
 
     update_app_changelog(CHANGELOG_APP_PATH, changes)
     update_web_changelog(CHANGELOG_WEB_PATH, changes)
