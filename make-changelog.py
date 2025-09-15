@@ -3,11 +3,13 @@ import argparse
 import sys
 import utils
 import datetime
+import json
 
 
 SOURCE_PATH = "../giada/extras/com.giadamusic.Giada.metainfo.xml"
 CHANGELOG_APP_PATH = "../giada/ChangeLog"
 CHANGELOG_WEB_PATH = "../giada-www/src/data/changes.html"
+RELEASE_WEB_PATH = "../giada-www/src/data/release.json"
 
 
 class Changes:
@@ -70,6 +72,18 @@ def update_web_changelog(file_path, changes):
         f.write(changes.description)
 
 
+def update_web_release(file_path, changes):
+    utils.check_file_existence(file_path)
+    with open(file_path, "w") as f:
+        release = {
+            "version": changes.version,
+            "codename": changes.codename,
+            "date": changes.date.strftime("%B %d, %Y"),
+        }
+        json.dump(release, f, indent=4)
+        f.write("\n")
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Changelog generator")
 
@@ -84,3 +98,4 @@ if __name__ == "__main__":
 
     update_app_changelog(CHANGELOG_APP_PATH, changes)
     update_web_changelog(CHANGELOG_WEB_PATH, changes)
+    update_web_release(RELEASE_WEB_PATH, changes)
